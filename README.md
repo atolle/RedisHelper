@@ -1,6 +1,6 @@
 # Redis Helper
 
-**NOTE: This app supports wildcard searches, which are performed via key scans. This should be used with caution in production environments containing a large number of keys, as Redis is single-threaded and key scans can cause bottlenecks.**
+_NOTE: This app supports wildcard searches, which are performed via key scans. This should be used with caution in production environments containing a large number of keys, as Redis is single-threaded and key scans can cause bottlenecks._
 
 ## Usage
 
@@ -27,7 +27,7 @@ Keys: QA1:foo, QA1:bar, QA2:baz
 
 Returned prefixes: foo, bar
 
-**If you configure a cachePartitionKey, all queries will be prefixed with the cachePartitionKey + cacheKeyDelimiter**
+_If you configure a cachePartitionKey, all queries will be prefixed with the cachePartitionKey + cacheKeyDelimiter_
 
 ### Example
 
