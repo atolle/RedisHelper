@@ -1,5 +1,7 @@
 # Redis Helper
 
+I was tired of querying and updating Redis via CLI, so I wrote Redis Helper.
+
 _NOTE: This app supports wildcard searches, which are performed via key scans. This should be used with caution in production environments containing a large number of keys, as Redis is single-threaded and key scans can cause bottlenecks._
 
 ## Usage
