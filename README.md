@@ -17,28 +17,32 @@ The only required configurations are redisConnectionString and keyScanCount
 
 ![image](https://github.com/user-attachments/assets/01021621-8a4c-4140-9917-d853ff20bb44)
 
-Optionally, you can set a cachePartitionKey and cacheKeyDelimiter, which are used to pull key prefixes.
+### Partition Key and Delimiter
 
-### Example
+Optionally, you can set a cachePartitionKey and cacheKeyDelimiter, which are used to pull key prefixes. This is meant to give you a high-level view of your keys, if you are creating keys using a common pattern.
+
+Example:
 
 Partition key: 'QA1'
 
 Delimter: ':'
 
-Keys: QA1:foo, QA1:bar, QA2:baz
+Keys in Redis: QA1:foo, QA1:bar, QA2:baz
 
 Returned prefixes: foo, bar
 
-_If you configure a cachePartitionKey, all queries will be prefixed with the cachePartitionKey + cacheKeyDelimiter_
+### Queries
 
-### Example
+If you configure a cachePartitionKey, all queries will be prefixed with the cachePartitionKey + cacheKeyDelimiter.
+
+Example:
 
 Partition key: 'QA1'
 
 Delimter: ':'
 
-Query: \*foo\*
+User's query: \*foo\*
 
-Actual query: QA1:\*foo\*
+Actual query sent to Redis: QA1:\*foo\*
 
 ![image](https://github.com/user-attachments/assets/7210bd2e-e5c1-4d57-bed9-aaf244be06bc)
