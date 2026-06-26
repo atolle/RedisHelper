@@ -35,12 +35,21 @@ namespace RedisHelper
         public List<string> GetWildcard(string wildCardKey)
         {
             var endpoints = redisConnection.GetEndPoints();
-            var server = redisConnection.GetServer(endpoints[0]);
             var result = new List<string>();
-            var keys = server.Keys(0, wildCardKey, keyScanCount);
-            var redisKeys = keys.ToList();
 
-            result.AddRange(redisKeys.Select(key => (string)key));
+            foreach (var endpoint in endpoints)
+            {
+                var server = redisConnection.GetServer(endpoint);
+                if (server.IsReplica)
+                {
+                    continue;
+                }                    
+
+                var keys = server.Keys(0, wildCardKey, keyScanCount);
+                var redisKeys = keys.ToList();
+
+                result.AddRange(redisKeys.Select(key => (string)key));
+            }
 
             return result;
         }
@@ -58,6 +67,11 @@ namespace RedisHelper
         public void Delete(string key)
         {
             database.KeyDelete(key);
+        }
+
+        public void DeleteMulti(List<string> keys)
+        {
+            database.KeyDelete(keys.Select(k => (RedisKey)k).ToArray());
         }
     }
 }

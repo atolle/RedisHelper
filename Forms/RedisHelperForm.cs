@@ -191,6 +191,36 @@ namespace RedisHelper
             }
         }
 
+        private void delMultiButton_Click(object sender, EventArgs e)
+        {
+            hideErrorMessage();
+
+            if (resultsCheckedListBox.CheckedItems.Count == 0)
+            {
+                showErrorMessage("No keys selected.");
+                return;
+            }
+
+            try
+            {
+                var keysToDelete = new List<string>();
+
+                foreach (var key in resultsCheckedListBox.CheckedItems.Cast<string>())
+                {
+                    keysToDelete.Add(key);
+                }
+
+                redisService.DeleteMulti(keysToDelete);
+
+                resetElements();
+                showResultTextBox($"Deleted{Environment.NewLine}{string.Join(Environment.NewLine, keysToDelete)}");
+            }
+            catch (Exception ex)
+            {
+                showErrorMessage(ex.Message);
+            }
+        }
+
         private void resultsCheckedListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             if ((sender as CheckedListBox).SelectedItem == null) return;
@@ -412,6 +442,7 @@ namespace RedisHelper
             resultsCheckedListBox.Items.Clear();
             selectAllButton.Visible = false;
             delButton.Visible = false;
+            delMultiButton.Visible = false;
         }
 
         private void showCheckedBoxList()
@@ -419,6 +450,7 @@ namespace RedisHelper
             resultsCheckedListBox.Visible = true;
             selectAllButton.Visible = true;
             delButton.Visible = true;
+            delMultiButton.Visible = true;
         }
 
         private void hideResultValueTextBox()

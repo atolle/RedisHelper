@@ -43,6 +43,7 @@
             this.getPrefixesButton = new System.Windows.Forms.Button();
             this.helpLabel = new System.Windows.Forms.Label();
             this.resultsGroupBox = new System.Windows.Forms.GroupBox();
+            this.delMultiButton = new System.Windows.Forms.Button();
             this.loadingLabel = new System.Windows.Forms.Label();
             this.resultValueTextBox = new System.Windows.Forms.TextBox();
             this.keyTtlLabel = new System.Windows.Forms.Label();
@@ -201,6 +202,7 @@
             this.resultsGroupBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.resultsGroupBox.Controls.Add(this.delMultiButton);
             this.resultsGroupBox.Controls.Add(this.loadingLabel);
             this.resultsGroupBox.Controls.Add(this.resultValueTextBox);
             this.resultsGroupBox.Controls.Add(this.keyTtlLabel);
@@ -215,6 +217,18 @@
             this.resultsGroupBox.TabIndex = 19;
             this.resultsGroupBox.TabStop = false;
             this.resultsGroupBox.Text = "Results";
+            // 
+            // delMultiButton
+            // 
+            this.delMultiButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.delMultiButton.Location = new System.Drawing.Point(1091, 88);
+            this.delMultiButton.Name = "delMultiButton";
+            this.delMultiButton.Size = new System.Drawing.Size(69, 38);
+            this.delMultiButton.TabIndex = 25;
+            this.delMultiButton.Text = "DEL MULTI";
+            this.delMultiButton.UseVisualStyleBackColor = true;
+            this.delMultiButton.Visible = false;
+            this.delMultiButton.Click += new System.EventHandler(this.delMultiButton_Click);
             // 
             // loadingLabel
             // 
@@ -391,6 +405,7 @@
         private System.Windows.Forms.Label cachePartitionKeyValueLabel;
         private System.Windows.Forms.Label cacheKeyDelimiterValueLabel;
         private System.Windows.Forms.Label cacheKeyDelimiterLabel;
+        private System.Windows.Forms.Button delMultiButton;
     }
 }
 
