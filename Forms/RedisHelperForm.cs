@@ -11,7 +11,7 @@ namespace RedisHelper
     public partial class RedisHelperForm : Form
     {
         private static readonly string cachePartitionKey = ConfigurationManager.AppSettings["cachePartitionKey"] ?? "";
-        private static readonly string cacheKeyDelimiter = ConfigurationManager.AppSettings["cacheKeyDelimiter"] ?? "";
+        private static readonly string cacheKeyDelimiter = ConfigurationManager.AppSettings["cacheKeyDelimiter"] ?? ":";
         private static readonly int createTestKeysCount = ConfigurationManager.AppSettings["createTestKeysCount"] != null 
             ? int.Parse(ConfigurationManager.AppSettings["createTestKeysCount"].ToString()) 
             : 0;
@@ -240,13 +240,12 @@ namespace RedisHelper
 
                 showLoadingLabel("Creating test keys...");
 
-                for (var i = 0; i < createTestKeysCount; i++)
-                {
-                    redisService.Set($"redis-helper-test-{i}", "test");
-                }
+                var entries = Enumerable.Range(0, createTestKeysCount).ToDictionary(i => $"redis-helper-test{cacheKeyDelimiter}{i}", _ => "test");
+
+                redisService.SetBatch(entries);
 
                 resetElements();
-                showSuccessMessage($"Keys migrated!");
+                showSuccessMessage($"Test keys created!");
             }
             catch (Exception ex)
             {
