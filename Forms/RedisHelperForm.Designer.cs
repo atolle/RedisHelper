@@ -55,6 +55,8 @@
             this.cachePartitionKeyValueLabel = new System.Windows.Forms.Label();
             this.cacheKeyDelimiterValueLabel = new System.Windows.Forms.Label();
             this.cacheKeyDelimiterLabel = new System.Windows.Forms.Label();
+            this.migrateButton = new System.Windows.Forms.Button();
+            this.createTestKeysButton = new System.Windows.Forms.Button();
             this.resultsGroupBox.SuspendLayout();
             this.helpGroupBox.SuspendLayout();
             this.SuspendLayout();
@@ -312,7 +314,7 @@
             // cachePartitionKeyLabel
             // 
             this.cachePartitionKeyLabel.AutoSize = true;
-            this.cachePartitionKeyLabel.Location = new System.Drawing.Point(83, 28);
+            this.cachePartitionKeyLabel.Location = new System.Drawing.Point(443, 0);
             this.cachePartitionKeyLabel.Name = "cachePartitionKeyLabel";
             this.cachePartitionKeyLabel.Size = new System.Drawing.Size(101, 13);
             this.cachePartitionKeyLabel.TabIndex = 22;
@@ -321,7 +323,7 @@
             // cachePartitionKeyValueLabel
             // 
             this.cachePartitionKeyValueLabel.AutoSize = true;
-            this.cachePartitionKeyValueLabel.Location = new System.Drawing.Point(181, 28);
+            this.cachePartitionKeyValueLabel.Location = new System.Drawing.Point(541, 0);
             this.cachePartitionKeyValueLabel.Name = "cachePartitionKeyValueLabel";
             this.cachePartitionKeyValueLabel.Size = new System.Drawing.Size(37, 13);
             this.cachePartitionKeyValueLabel.TabIndex = 23;
@@ -330,7 +332,7 @@
             // cacheKeyDelimiterValueLabel
             // 
             this.cacheKeyDelimiterValueLabel.AutoSize = true;
-            this.cacheKeyDelimiterValueLabel.Location = new System.Drawing.Point(181, 41);
+            this.cacheKeyDelimiterValueLabel.Location = new System.Drawing.Point(541, 13);
             this.cacheKeyDelimiterValueLabel.Name = "cacheKeyDelimiterValueLabel";
             this.cacheKeyDelimiterValueLabel.Size = new System.Drawing.Size(37, 13);
             this.cacheKeyDelimiterValueLabel.TabIndex = 25;
@@ -339,17 +341,41 @@
             // cacheKeyDelimiterLabel
             // 
             this.cacheKeyDelimiterLabel.AutoSize = true;
-            this.cacheKeyDelimiterLabel.Location = new System.Drawing.Point(83, 41);
+            this.cacheKeyDelimiterLabel.Location = new System.Drawing.Point(443, 13);
             this.cacheKeyDelimiterLabel.Name = "cacheKeyDelimiterLabel";
             this.cacheKeyDelimiterLabel.Size = new System.Drawing.Size(102, 13);
             this.cacheKeyDelimiterLabel.TabIndex = 24;
             this.cacheKeyDelimiterLabel.Text = "Cache key delimiter:";
+            // 
+            // migrateButton
+            // 
+            this.migrateButton.Location = new System.Drawing.Point(12, 25);
+            this.migrateButton.Name = "migrateButton";
+            this.migrateButton.Size = new System.Drawing.Size(68, 22);
+            this.migrateButton.TabIndex = 26;
+            this.migrateButton.Text = "MIGRATE";
+            this.migrateButton.UseVisualStyleBackColor = true;
+            this.migrateButton.Visible = false;
+            this.migrateButton.Click += new System.EventHandler(this.migrateButton_Click);
+            // 
+            // createTestKeysButton
+            // 
+            this.createTestKeysButton.Location = new System.Drawing.Point(86, 25);
+            this.createTestKeysButton.Name = "createTestKeysButton";
+            this.createTestKeysButton.Size = new System.Drawing.Size(127, 22);
+            this.createTestKeysButton.TabIndex = 27;
+            this.createTestKeysButton.Text = "CREATE TEST KEYS";
+            this.createTestKeysButton.UseVisualStyleBackColor = true;
+            this.createTestKeysButton.Visible = false;
+            this.createTestKeysButton.Click += new System.EventHandler(this.createTestKeysButton_Click);
             // 
             // RedisHelperForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1193, 737);
+            this.Controls.Add(this.createTestKeysButton);
+            this.Controls.Add(this.migrateButton);
             this.Controls.Add(this.cacheKeyDelimiterValueLabel);
             this.Controls.Add(this.cacheKeyDelimiterLabel);
             this.Controls.Add(this.cachePartitionKeyValueLabel);
@@ -406,6 +432,8 @@
         private System.Windows.Forms.Label cacheKeyDelimiterValueLabel;
         private System.Windows.Forms.Label cacheKeyDelimiterLabel;
         private System.Windows.Forms.Button delMultiButton;
+        private System.Windows.Forms.Button migrateButton;
+        private System.Windows.Forms.Button createTestKeysButton;
     }
 }
 
