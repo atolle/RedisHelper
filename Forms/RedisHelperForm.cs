@@ -11,7 +11,10 @@ namespace RedisHelper
     public partial class RedisHelperForm : Form
     {
         private static readonly string cachePartitionKey = ConfigurationManager.AppSettings["cachePartitionKey"] ?? "";
-        private static readonly string cacheKeyDelimiter = ConfigurationManager.AppSettings["cacheKeyDelimiter"] ?? "";
+        private static readonly string cacheKeyDelimiter = ConfigurationManager.AppSettings["cacheKeyDelimiter"] ?? ":";
+        private static readonly int createTestKeysCount = ConfigurationManager.AppSettings["createTestKeysCount"] != null 
+            ? int.Parse(ConfigurationManager.AppSettings["createTestKeysCount"].ToString()) 
+            : 0;
         private RedisService redisService;
 
         public RedisHelperForm()
@@ -30,6 +33,16 @@ namespace RedisHelper
                 if (!string.IsNullOrEmpty(cacheKeyDelimiter))
                 {
                     cacheKeyDelimiterValueLabel.Text = cacheKeyDelimiter;
+                }
+
+                if (redisService.IsMigrateMode())
+                {
+                    migrateButton.Visible = true;
+                }
+
+                if (createTestKeysCount > 0)
+                {
+                    createTestKeysButton.Visible = true;
                 }
             }
             catch (Exception ex)
@@ -188,6 +201,59 @@ namespace RedisHelper
             catch (Exception ex)
             {
                 showErrorMessage(ex.Message);
+            }
+        }
+
+        private void migrateButton_Click(object sender, EventArgs e)
+        {
+            hideErrorMessage();
+
+            try
+            {
+                showLoadingLabel("Migrating...");
+
+                var results = redisService.MigrateRedis();
+
+                resetElements();
+                showSuccessMessage($"Redis migrated! Migrated: {results.MigratedCount} Failed: {results.FailedCount} Skipped: {results.SkippedCount} Elapsed: {results.Elapsed}");
+            }
+            catch (Exception ex)
+            {
+                showErrorMessage(ex.Message);
+            } 
+            finally
+            {
+                hideLoadingLabel();
+            }
+        }
+
+        private void createTestKeysButton_Click(object sender, EventArgs e)
+        {
+            hideErrorMessage();
+
+            try
+            {
+                if (createTestKeysCount <= 0)
+                {
+                    showErrorMessage("No key count specified.");
+                }                
+
+                showLoadingLabel("Creating test keys...");
+
+                var entries = Enumerable.Range(0, createTestKeysCount).ToDictionary(i => $"redis-helper-test{cacheKeyDelimiter}{i}", _ => "test");
+
+                redisService.SetBatch(entries);
+
+                resetElements();
+                showSuccessMessage($"Test keys created!");
+            }
+            catch (Exception ex)
+            {
+                showErrorMessage(ex.Message);
+            }
+            finally
+            {
+                hideLoadingLabel();
             }
         }
 
@@ -371,8 +437,9 @@ namespace RedisHelper
             loadingLabel.Visible = false;
         }
 
-        private void showLoadingLabel()
+        private void showLoadingLabel(string label = "Loading...")
         {
+            loadingLabel.Text = label;
             loadingLabel.Visible = true;
         }
 
