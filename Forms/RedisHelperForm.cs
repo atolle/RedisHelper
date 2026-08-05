@@ -15,11 +15,15 @@ namespace RedisHelper
         private static readonly int createTestKeysCount = ConfigurationManager.AppSettings["createTestKeysCount"] != null 
             ? int.Parse(ConfigurationManager.AppSettings["createTestKeysCount"].ToString()) 
             : 0;
+        private const int CheckColumnIndex = 0;
+        private const int KeyColumnIndex = 1;
+
         private RedisService redisService;
 
         public RedisHelperForm()
         {
             InitializeComponent();
+            setupResultsGrid();
 
             try
             {
@@ -37,12 +41,12 @@ namespace RedisHelper
 
                 if (redisService.IsMigrateMode())
                 {
-                    migrateButton.Visible = true;
+                    migrateButton.Enabled = true;
                 }
 
                 if (createTestKeysCount > 0)
                 {
-                    createTestKeysButton.Visible = true;
+                    createTestKeysButton.Enabled = true;
                 }
             }
             catch (Exception ex)
@@ -88,6 +92,48 @@ namespace RedisHelper
             return cachePartitionKey + cacheKeyDelimiter;
         }
 
+        private void setupResultsGrid()
+        {
+            resultsDataGridView.Columns.Add(new DataGridViewCheckBoxColumn
+            {
+                Name = "colCheck",
+                HeaderText = "",
+                Width = 36,
+                Resizable = DataGridViewTriState.False
+            });
+
+            resultsDataGridView.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colKey",
+                HeaderText = "Key",
+                ReadOnly = true,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+            });
+
+            resultsDataGridView.AlternatingRowsDefaultCellStyle.BackColor = Theme.GridAltRow;
+            resultsDataGridView.DefaultCellStyle.SelectionBackColor = Theme.GridSelected;
+            resultsDataGridView.DefaultCellStyle.SelectionForeColor = Theme.TextPrimary;
+            resultsDataGridView.ColumnHeadersDefaultCellStyle.Font = Theme.BaseBold;
+            resultsDataGridView.ColumnHeadersDefaultCellStyle.BackColor = Theme.CardBackground;
+            resultsDataGridView.ColumnHeadersDefaultCellStyle.ForeColor = Theme.TextMuted;
+            resultsDataGridView.ColumnHeadersDefaultCellStyle.SelectionBackColor = Theme.CardBackground;
+            resultsDataGridView.ColumnHeadersDefaultCellStyle.SelectionForeColor = Theme.TextMuted;
+
+            resultsDataGridView.CellContentClick += resultsDataGridView_CellContentClick;
+            resultsDataGridView.CellClick += resultsDataGridView_CellClick;
+        }
+
+        private IEnumerable<string> getCheckedKeys()
+        {
+            foreach (DataGridViewRow row in resultsDataGridView.Rows)
+            {
+                if (row.Cells[CheckColumnIndex].Value is bool isChecked && isChecked)
+                {
+                    yield return row.Cells[KeyColumnIndex].Value.ToString();
+                }
+            }
+        }
+
         #region Events
 
         private void getButton_Click(object sender, EventArgs e)
@@ -116,7 +162,7 @@ namespace RedisHelper
                     {
                         foreach (var result in results)
                         {
-                            resultsCheckedListBox.Items.Add(result);
+                            resultsDataGridView.Rows.Add(false, result);
                         }
 
                         showCheckedBoxList();
@@ -179,7 +225,9 @@ namespace RedisHelper
         {
             hideErrorMessage();
 
-            if (resultsCheckedListBox.CheckedItems.Count == 0)
+            var checkedKeys = getCheckedKeys().ToList();
+
+            if (checkedKeys.Count == 0)
             {
                 showErrorMessage("No keys selected.");
                 return;
@@ -189,7 +237,7 @@ namespace RedisHelper
             {
                 var deletedKeys = new List<string>();
 
-                foreach (var key in resultsCheckedListBox.CheckedItems.Cast<string>())
+                foreach (var key in checkedKeys)
                 {
                     redisService.Delete(key);
                     deletedKeys.Add(key);
@@ -261,7 +309,9 @@ namespace RedisHelper
         {
             hideErrorMessage();
 
-            if (resultsCheckedListBox.CheckedItems.Count == 0)
+            var keysToDelete = getCheckedKeys().ToList();
+
+            if (keysToDelete.Count == 0)
             {
                 showErrorMessage("No keys selected.");
                 return;
@@ -269,13 +319,6 @@ namespace RedisHelper
 
             try
             {
-                var keysToDelete = new List<string>();
-
-                foreach (var key in resultsCheckedListBox.CheckedItems.Cast<string>())
-                {
-                    keysToDelete.Add(key);
-                }
-
                 redisService.DeleteMulti(keysToDelete);
 
                 resetElements();
@@ -287,11 +330,20 @@ namespace RedisHelper
             }
         }
 
-        private void resultsCheckedListBox_SelectedIndexChanged(object sender, EventArgs e)
+        private void resultsDataGridView_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            if ((sender as CheckedListBox).SelectedItem == null) return;
+            if (e.RowIndex < 0 || e.ColumnIndex != CheckColumnIndex) return;
 
-            string key = (sender as CheckedListBox).SelectedItem.ToString();
+            resultsDataGridView.EndEdit();
+        }
+
+        private void resultsDataGridView_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex != KeyColumnIndex) return;
+
+            var key = resultsDataGridView.Rows[e.RowIndex].Cells[KeyColumnIndex].Value?.ToString();
+
+            if (string.IsNullOrEmpty(key)) return;
 
             // Copy to clipboard
             try
@@ -337,12 +389,14 @@ namespace RedisHelper
 
         private void selectAllButton_Click(object sender, EventArgs e)
         {
-            var allChecked = resultsCheckedListBox.CheckedItems.Count == resultsCheckedListBox.Items.Count;
+            var allChecked = getCheckedKeys().Count() == resultsDataGridView.Rows.Count;
             var newCheckState = !allChecked;
 
-            for (var i = 0; i < resultsCheckedListBox.Items.Count; i++)
+            resultsDataGridView.EndEdit();
+
+            foreach (DataGridViewRow row in resultsDataGridView.Rows)
             {
-                resultsCheckedListBox.SetItemChecked(i, newCheckState);
+                row.Cells[CheckColumnIndex].Value = newCheckState;
             }
         }
 
@@ -505,8 +559,8 @@ namespace RedisHelper
 
         private void hideCheckedBoxList()
         {
-            resultsCheckedListBox.Visible = false;
-            resultsCheckedListBox.Items.Clear();
+            resultsSplitContainer.Visible = false;
+            resultsDataGridView.Rows.Clear();
             selectAllButton.Visible = false;
             delButton.Visible = false;
             delMultiButton.Visible = false;
@@ -514,7 +568,7 @@ namespace RedisHelper
 
         private void showCheckedBoxList()
         {
-            resultsCheckedListBox.Visible = true;
+            resultsSplitContainer.Visible = true;
             selectAllButton.Visible = true;
             delButton.Visible = true;
             delMultiButton.Visible = true;
