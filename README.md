@@ -43,4 +43,4 @@ User's query: \*foo\*
 
 Actual query sent to Redis: QA1:\*foo\*
 
-![image](https://github.com/user-attachments/assets/7210bd2e-e5c1-4d57-bed9-aaf244be06bc)
+<img width="1192" height="825" alt="image" src="https://github.com/user-attachments/assets/d89c98ba-1888-4555-bd79-d7d7eb033c80" />
