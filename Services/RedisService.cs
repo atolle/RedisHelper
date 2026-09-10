@@ -54,17 +54,10 @@ namespace RedisHelper
 
         public List<string> GetWildcard(string wildCardKey)
         {
-            var endpoints = redisConnection.GetEndPoints();
             var result = new List<string>();
 
-            foreach (var endpoint in endpoints)
+            foreach (var server in GetServers())
             {
-                var server = redisConnection.GetServer(endpoint);
-                if (server.IsReplica)
-                {
-                    continue;
-                }                    
-
                 var keys = server.Keys(0, wildCardKey, keyScanCount);
                 var redisKeys = keys.ToList();
 
@@ -204,6 +197,26 @@ namespace RedisHelper
             var prefix = key.Substring(0, delimiterIndex);
             var rest = key.Substring(delimiterIndex + 1);
             return $"{{{prefix}}}:{rest}";
+        }
+
+        private IEnumerable<IServer> GetServers()
+        {
+            /// GetEndPoints(configuredOnly: false) returns every endpoint the multiplexer knows about,
+            /// including the seed endpoint used to establish the connection. For Managed
+            /// Redis, that seed endpoint resolves to the same physical shard as one of the discovered
+            /// endpoints, so scanning all of them double-counts that shard. Excluding the configured
+            /// seed(s) from the discovered set leaves exactly the real per-shard endpoints.
+            var configuredSeeds = redisConnection.GetEndPoints(configuredOnly: true);
+            var allEndpoints = redisConnection.GetEndPoints(configuredOnly: false);
+
+            var shardEndpoints = allEndpoints.Except(configuredSeeds).ToList();
+
+            // Fallback: if discovery found nothing beyond the seed (non-cluster / single-node case), just use the seed itself.
+            var targets = shardEndpoints.Any() ? shardEndpoints : configuredSeeds.ToList();
+
+            return targets
+                .Select(ep => redisConnection.GetServer(ep))
+                .Where(s => !s.IsReplica);
         }
     }
 }
